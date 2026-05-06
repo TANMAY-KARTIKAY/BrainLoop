@@ -33,6 +33,7 @@ The selected option turns green, a checkmark (✓) appears, and the explanation 
 
 ```NEXT PHASE```
 Once all 5 questions in the current phase are answered, the "Next Phase" button unlocks. Clicking it loads a fresh set of 5 random questions from your remaining unmastered pool, pushing you further toward completing all topics.
+
 ![img alt](https://github.com/TANMAY-KARTIKAY/BrainLoop/blob/67b266c09af128ca2e2d38d449af6068952ae4a0/NEXT%20PHASE.png)
 
 ```How It Works```
