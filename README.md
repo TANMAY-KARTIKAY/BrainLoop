@@ -1,7 +1,7 @@
 # BrainLoop
 BrainLoop -  An MCQ quiz tool using active recall &amp; spaced repetition. Answer correctly, and questions appear less often; answer wrong and they loop back sooner. Hard topics repeat until mastered, easy ones fade away. Small phases prevent overwhelm. Load your questions, start learning, and let your brain do the rest
 
-#How to Add Your Own Questions
+'''How to Add Your Own Questions'''
 
 ##Ask any AI (ChatGPT, Claude, etc.) to format your questions using this template:
 Generate MCQ questions in this format:
