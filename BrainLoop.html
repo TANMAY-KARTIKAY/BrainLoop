@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>MCQ Quiz - Spaced Repetition</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+    background: #f5f5f5;
+    color: #222;
+    padding: 20px;
+    line-height: 1.5;
+  }
+  .container {
+    max-width: 800px;
+    margin: 0 auto;
+    background: #fff;
+    padding: 25px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+  }
+  h1 { font-size: 22px; margin-bottom: 5px; }
+  .stats {
+    background: #f0f0f0;
+    padding: 10px;
+    margin-bottom: 20px;
+    border-radius: 4px;
+    font-size: 14px;
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .question-block {
+    border: 1px solid #ccc;
+    padding: 15px;
+    margin-bottom: 15px;
+    border-radius: 4px;
+    background: #fafafa;
+  }
+  .qheader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .qtopic {
+    font-size: 12px;
+    color: #666;
+    font-weight: bold;
+    text-transform: uppercase;
+  }
+  .counter-badge {
+    background: #333;
+    color: #fff;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: bold;
+  }
+  .question-text {
+    font-size: 15px;
+    margin-bottom: 12px;
+    font-weight: 500;
+  }
+  .options { list-style: none; }
+  .option {
+    border: 1px solid #ccc;
+    padding: 10px 12px;
+    margin-bottom: 6px;
+    border-radius: 4px;
+    cursor: pointer;
+    background: #fff;
+    transition: background 0.15s;
+    font-size: 14px;
+  }
+  .option:hover:not(.disabled) { background: #eef; }
+  .option.disabled { cursor: not-allowed; }
+  .option.selected-correct {
+    background: #d4edda;
+    border-color: #28a745;
+    color: #155724;
+  }
+  .option.selected-wrong {
+    background: #f8d7da;
+    border-color: #dc3545;
+    color: #721c24;
+  }
+  .option.correct-reveal {
+    background: #d4edda;
+    border-color: #28a745;
+    color: #155724;
+    font-weight: bold;
+  }
+  .feedback {
+    margin-top: 10px;
+    padding: 10px;
+    border-radius: 4px;
+    font-size: 14px;
+  }
+  .feedback.correct { background: #d4edda; color: #155724; }
+  .feedback.wrong { background: #f8d7da; color: #721c24; }
+  .feedback .symbol { font-size: 20px; font-weight: bold; margin-right: 6px; }
+  .explanation { margin-top: 6px; font-style: italic; font-size: 13px; }
+  button {
+    background: #333;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    margin-top: 10px;
+  }
+  button:hover { background: #555; }
+  button:disabled { background: #aaa; cursor: not-allowed; }
+  .end-screen {
+    text-align: center;
+    padding: 40px 20px;
+  }
+  .end-screen h2 { margin-bottom: 15px; color: #28a745; }
+  .phase-info {
+    font-size: 13px;
+    color: #555;
+    margin-bottom: 15px;
+  }
+</style>
+</head>
+<body>
+<div class="container" id="app"></div>
+
+<script>
+
+const QUESTIONS = [
+  //=========== JUST ASK AN AI TO FORM YOUR QUESTION IN THE FOLLOWING TEMPLATE ===========
+  
+  // ========== TOPIC 1: YOUR_TOPIC_1 ==========
+  {topic:"TOPIC_1_NAME",q:"QUESTION_1_TEXT?",options:["OPTION_A","OPTION_B","OPTION_C","OPTION_D"],answer:0,explanation:"EXPLANATION_FOR_Q1"},
+  {topic:"TOPIC_1_NAME",q:"QUESTION_2_TEXT?",options:["OPTION_A","OPTION_B","OPTION_C","OPTION_D"],answer:1,explanation:"EXPLANATION_FOR_Q2"},
+  {topic:"TOPIC_1_NAME",q:"QUESTION_3_TEXT?",options:["OPTION_A","OPTION_B","OPTION_C","OPTION_D"],answer:2,explanation:"EXPLANATION_FOR_Q3"},
+  {topic:"TOPIC_1_NAME",q:"QUESTION_4_TEXT?",options:["OPTION_A","OPTION_B","OPTION_C","OPTION_D"],answer:3,explanation:"EXPLANATION_FOR_Q4"},
+
+  // ========== TOPIC 2: YOUR_TOPIC_2 ==========
+  {topic:"TOPIC_2_NAME",q:"QUESTION_1_TEXT?",options:["OPTION_A","OPTION_B","OPTION_C","OPTION_D"],answer:0,explanation:"EXPLANATION_FOR_Q1"},
+  {topic:"TOPIC_2_NAME",q:"QUESTION_2_TEXT?",options:["OPTION_A","OPTION_B","OPTION_C","OPTION_D"],answer:1,explanation:"EXPLANATION_FOR_Q2"},
+  {topic:"TOPIC_2_NAME",q:"QUESTION_3_TEXT?",options:["OPTION_A","OPTION_B","OPTION_C","OPTION_D"],answer:2,explanation:"EXPLANATION_FOR_Q3"},
+  {topic:"TOPIC_2_NAME",q:"QUESTION_4_TEXT?",options:["OPTION_A","OPTION_B","OPTION_C","OPTION_D"],answer:3,explanation:"EXPLANATION_FOR_Q4"},
+
+  // ========== TOPIC 3: YOUR_TOPIC_3 ==========
+  {topic:"TOPIC_3_NAME",q:"QUESTION_1_TEXT?",options:["OPTION_A","OPTION_B","OPTION_C","OPTION_D"],answer:0,explanation:"EXPLANATION_FOR_Q1"},
+  {topic:"TOPIC_3_NAME",q:"QUESTION_2_TEXT?",options:["OPTION_A","OPTION_B","OPTION_C","OPTION_D"],answer:1,explanation:"EXPLANATION_FOR_Q2"},
+  {topic:"TOPIC_3_NAME",q:"QUESTION_3_TEXT?",options:["OPTION_A","OPTION_B","OPTION_C","OPTION_D"],answer:2,explanation:"EXPLANATION_FOR_Q3"},
+  {topic:"TOPIC_3_NAME",q:"QUESTION_4_TEXT?",options:["OPTION_A","OPTION_B","OPTION_C","OPTION_D"],answer:3,explanation:"EXPLANATION_FOR_Q4"},
+];
+
+// Initialize counters
+let state = {
+  counters: QUESTIONS.map(() => 5),
+  phase: 1,
+  currentQuestions: [], // indices
+  answered: {},          // qIndex -> {selected, correct}
+  totalAnswered: 0,
+  totalCorrect: 0
+};
+
+const LETTERS = ['A', 'B', 'C', 'D', 'E'];
+
+function pickRandomQuestions() {
+  const available = [];
+  state.counters.forEach((c, i) => { if (c > 0) available.push(i); });
+  if (available.length === 0) return [];
+  // shuffle
+  for (let i = available.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [available[i], available[j]] = [available[j], available[i]];
+  }
+  return available.slice(0, Math.min(5, available.length));
+}
+
+function startPhase() {
+  state.currentQuestions = pickRandomQuestions();
+  state.answered = {};
+  render();
+}
+
+function selectAnswer(qIndex, optionIndex) {
+  if (state.answered[qIndex] !== undefined) return; // already answered
+  const question = QUESTIONS[qIndex];
+  const isCorrect = optionIndex === question.answer;
+  state.answered[qIndex] = { selected: optionIndex, correct: isCorrect };
+  state.totalAnswered++;
+  if (isCorrect) {
+    state.totalCorrect++;
+    state.counters[qIndex] = Math.max(0, state.counters[qIndex] - 1);
+  } else {
+    state.counters[qIndex] += 1;
+  }
+  render();
+}
+
+function nextPhase() {
+  state.phase++;
+  startPhase();
+  window.scrollTo(0, 0);
+}
+
+function resetQuiz() {
+  if (!confirm("Reset all progress?")) return;
+  state = {
+    counters: QUESTIONS.map(() => 5),
+    phase: 1,
+    currentQuestions: [],
+    answered: {},
+    totalAnswered: 0,
+    totalCorrect: 0
+  };
+  startPhase();
+}
+
+function render() {
+  const app = document.getElementById('app');
+  const remaining = state.counters.filter(c => c > 0).length;
+  const mastered = QUESTIONS.length - remaining;
+
+  // Check if quiz complete
+  if (state.currentQuestions.length === 0) {
+    app.innerHTML = `
+      <div class="end-screen">
+        <h2>🎉 All Questions Mastered!</h2>
+        <p>You've completed all ${QUESTIONS.length} questions across ${state.phase - 1} phases.</p>
+        <p>Total answers given: ${state.totalAnswered} | Correct: ${state.totalCorrect}</p>
+        <button onclick="resetQuiz()">Restart Quiz</button>
+      </div>
+    `;
+    return;
+  }
+
+  const allAnswered = state.currentQuestions.every(qi => state.answered[qi] !== undefined);
+
+  let html = `
+    <h1>MCQ Quiz — Spaced Repetition</h1>
+    <div class="phase-info">Phase ${state.phase} • ${state.currentQuestions.length} questions this round</div>
+    <div class="stats">
+      <span><b>Mastered:</b> ${mastered}/${QUESTIONS.length}</span>
+      <span><b>Remaining:</b> ${remaining}</span>
+      <span><b>Total Answered:</b> ${state.totalAnswered}</span>
+      <span><b>Correct:</b> ${state.totalCorrect}</span>
+    </div>
+  `;
+
+  state.currentQuestions.forEach((qi, idx) => {
+    const q = QUESTIONS[qi];
+    const ans = state.answered[qi];
+    html += `<div class="question-block">
+      <div class="qheader">
+        <span class="qtopic">${q.topic} • Q${idx + 1}</span>
+        <span class="counter-badge">Counter: ${state.counters[qi]}</span>
+      </div>
+      <div class="question-text">${q.q}</div>
+      <ul class="options">`;
+    q.options.forEach((opt, oi) => {
+      let cls = 'option';
+      if (ans !== undefined) {
+        cls += ' disabled';
+        if (oi === ans.selected && ans.correct) cls += ' selected-correct';
+        else if (oi === ans.selected && !ans.correct) cls += ' selected-wrong';
+        else if (!ans.correct && oi === q.answer) cls += ' correct-reveal';
+      }
+      html += `<li class="${cls}" onclick="selectAnswer(${qi}, ${oi})">
+        <b>${LETTERS[oi]})</b> ${opt}
+      </li>`;
+    });
+    html += `</ul>`;
+    if (ans !== undefined) {
+      if (ans.correct) {
+        html += `<div class="feedback correct">
+          <span class="symbol">✓</span> Correct!
+          <div class="explanation">${q.explanation}</div>
+        </div>`;
+      } else {
+        html += `<div class="feedback wrong">
+          <span class="symbol">✗</span> Wrong. Correct answer: <b>${LETTERS[q.answer]}) ${q.options[q.answer]}</b>
+          <div class="explanation">${q.explanation}</div>
+        </div>`;
+      }
+    }
+    html += `</div>`;
+  });
+
+  if (allAnswered) {
+    html += `<button onclick="nextPhase()">Next Phase →</button>`;
+  } else {
+    const remainingNow = state.currentQuestions.length - Object.keys(state.answered).length;
+    html += `<button disabled>Answer all questions to continue (${remainingNow} left)</button>`;
+  }
+  html += ` <button onclick="resetQuiz()" style="background:#888;">Reset Quiz</button>`;
+
+  app.innerHTML = html;
+}
+
+
+startPhase();
+</script>
+</body>
+</html>
