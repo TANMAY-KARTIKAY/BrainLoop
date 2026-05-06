@@ -18,6 +18,7 @@ Save the file and open it in any browser. Your personalised quiz is ready — no
 
 ```COUNTER```
 Each question starts with a counter of 5. A correct answer decreases it by 1 (question appears less often), and a wrong answer increases it by 1 (question loops back sooner). When the counter hits 0, the question is considered mastered and removed from rotation.
+
 ![img alt](https://github.com/TANMAY-KARTIKAY/BrainLoop/blob/2d56c168807d810286b6ccbaac34402172750b7c/image.png)
 
 
